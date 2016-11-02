@@ -157,7 +157,7 @@ static NSString *JSONValueTransformerNameForAttributeType(NSAttributeType type)
 {
 	// An attribute's JSON is determined by the specified transformer.
 	// An identify transform returns the same value.
-	return [self.JSONValueTransformer transformedValue:object];
+	return object ? [self.JSONValueTransformer transformedValue:object] : [NSNull null];
 }
 
 @end
@@ -281,7 +281,11 @@ static NSString *JSONValueTransformerNameForAttributeType(NSAttributeType type)
 	//    (this is inferred from the `NSCascadeDeleteRule` used by owning objects)
 	// 3. the relationship is to a "private" entity (not known to the API)
 	id json = nil;
-	if (self.encodesIdInJSON) {
+	
+	if (!value) {
+		json = @[@""];
+	}
+	else if (self.encodesIdInJSON) {
 		json = [value valueForKey:NSStringFromSelector(@selector(identifier))];
 	}
 	else if (!self.toMany) {

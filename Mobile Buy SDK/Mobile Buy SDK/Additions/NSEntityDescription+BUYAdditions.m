@@ -136,15 +136,11 @@
 	NSMutableDictionary *results = [NSMutableDictionary dictionary];
 	[object.JSONEncodedProperties enumerateKeysAndObjectsUsingBlock:^(NSString *propertyName, NSPropertyDescription *property, BOOL *stop) {
 		id value = [object valueForKey:propertyName];
-		if (value) {
-			// Each property is responsible for knowing how to generate JSON for its value
-			// Some properties do not encode themselves in JSON, so we mut check for nil
-			id JSONValue = [property buy_JSONForValue:value];
-			if (JSONValue) {
-				NSString *JSONKey = encodingMap(propertyName) ?: propertyName;
-				results[JSONKey] = JSONValue;
-			}
-		}
+		// Each property is responsible for knowing how to generate JSON for its value
+		// Some properties do not encode themselves in JSON, so we mut check for nil
+		id JSONValue = [property buy_JSONForValue:value];
+		NSString *JSONKey = encodingMap(propertyName) ?: propertyName;
+		results[JSONKey] = JSONValue;
 	}];
 	
 	return results;
