@@ -32,6 +32,7 @@
 #import "BUYStatusOperation.h"
 #import "BUYAddress.h"
 #import "BUYCheckout.h"
+#import "BUYDiscount.h"
 #import "BUYGiftCard.h"
 #import "BUYShippingRate.h"
 #import "BUYCreditCard.h"
@@ -288,6 +289,22 @@
 		}
 		block(checkout, error);
 	}];
+}
+
+- (NSOperation *)applyDiscount:(BUYDiscount *)discount toCheckout:(BUYCheckout *)checkout completion:(BUYDataCheckoutBlock)block
+{
+	BUYAssertCheckout(checkout);
+	BUYAssert(discount, @"Failed to apply discount. Discount must be nonnull");
+	[checkout setDiscount:discount];
+	return [self updateCheckout:checkout completion:block];
+}
+
+- (NSOperation *)removeDiscountFromCheckout:(BUYCheckout *)checkout completion:(BUYDataCheckoutBlock)block
+{
+	BUYAssertCheckout(checkout);
+	
+	checkout.discount = [self.modelManager discountWithCode:nil];
+	return [self updateCheckout:checkout completion:block];
 }
 
 #pragma mark - Reservations -

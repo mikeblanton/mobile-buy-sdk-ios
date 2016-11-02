@@ -28,9 +28,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class BUYCheckout;
-@class BUYShippingRate;
-@class BUYGiftCard;
 @class BUYCreditCard;
+@class BUYDiscount;
+@class BUYGiftCard;
+@class BUYShippingRate;
 
 @protocol BUYPaymentToken;
 
@@ -219,6 +220,27 @@ typedef void (^BUYDataGiftCardBlock)(BUYGiftCard * _Nullable giftCard, NSError *
  *  @return The associated BUYRequestOperation
  */
 - (NSOperation *)removeGiftCard:(BUYGiftCard *)giftCard fromCheckout:(BUYCheckout *)checkout completion:(BUYDataCheckoutBlock)block;
+
+/**
+ *	Applies discount to the checkout.
+ *
+ *	@param discount The discount to apply onto an existing checkout on Shopify.
+ *  @param checkout An existing BUYCheckout on Shopify
+ *  @param block (^BUYDataCheckoutBlock)(BUYCheckout *checkout, NSError *error);
+ *
+ *  @return The associated BUYRequestOperation
+ */
+- (NSOperation *)applyDiscount:(BUYDiscount *)discount toCheckout:(BUYCheckout *)checkout completion:(BUYDataCheckoutBlock)block;
+
+/**
+ *	Removes the discount from the checkout.
+ *
+ *  @param checkout An existing BUYCheckout on Shopify
+ *  @param block (^BUYDataCheckoutBlock)(BUYCheckout *checkout, NSError *error);
+ *
+ *  @return The associated BUYRequestOperation
+ */
+- (NSOperation *)removeDiscountFromCheckout:(BUYCheckout *)checkout completion:(BUYDataCheckoutBlock)block;
 
 #pragma mark - Reservations -
 
