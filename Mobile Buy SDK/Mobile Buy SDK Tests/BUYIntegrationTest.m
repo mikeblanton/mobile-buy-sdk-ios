@@ -912,13 +912,9 @@
 	
 	[OHHTTPStubs stubUsingResponseWithKey:@"testCreateCheckoutWithValidDiscount_1" useMocks:[self shouldUseMocks]];
 	
-	_checkout.discount = [self applicableDiscount];
-	
-	// Update the checkout
 	XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
-	[self.client updateCheckout:_checkout completion:^(BUYCheckout *returnedCheckout, NSError *error) {
-		XCTAssertNil(error);
-		XCTAssertNotNil(returnedCheckout);
+	BUYDiscount *discountToAdd = [self applicableDiscount];
+	[self.client applyDiscount:discountToAdd toCheckout:_checkout completion:^(BUYCheckout * _Nullable returnedCheckout, NSError * _Nullable errors) {
 		_checkout = returnedCheckout;
 		[expectation fulfill];
 	}];
@@ -927,6 +923,37 @@
 	}];
 	XCTAssertNotNil(_checkout.discount);
 	XCTAssertTrue(_checkout.discount.applicable);
+}
+
+- (void)testRemovingDiscountFromCheckout
+{
+	[self createCart];
+	
+	[OHHTTPStubs stubUsingResponseWithKey:@"testCreateCheckoutWithValidDiscount_1" useMocks:[self shouldUseMocks]];
+	
+	_checkout = [[BUYCheckout alloc] initWithModelManager:_modelManager cart:_cart];
+	_checkout.discount = [self applicableDiscount];
+	
+	__weak BUYClient *weakClient = self.client;
+	
+	// Create the checkout
+	XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+	[self.client createCheckout:_checkout completion:^(BUYCheckout *oldCheckout, NSError *error) {
+		XCTAssertNil(error);
+		XCTAssertNotNil(oldCheckout);
+		
+		[weakClient removeDiscountFromCheckout:oldCheckout completion:^(BUYCheckout * _Nullable returnedCheckout, NSError * _Nullable error) {
+			XCTAssertNil(error);
+			XCTAssertNotNil(returnedCheckout);
+			XCTAssertNil(returnedCheckout.discount);
+			_checkout = returnedCheckout;
+			[expectation fulfill];
+		}];
+	}];
+	[self waitForExpectationsWithTimeout:10 handler:^(NSError *error) {
+		XCTAssertNil(error);
+	}];
+	XCTAssertNil(_checkout.discount);
 }
 
 - (void)testGetCheckoutWithInvalidToken
